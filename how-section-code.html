@@ -1,0 +1,123 @@
+<!-- ==================================================================
+     HOW IT WORKS — hover effect + live animations (desktop) over your how-visual boxes
+     Classes: how-section · how-pillars · how-pillar · how-visual · how-content · how-label-sq · how-list
+     PART 1 → Page settings > Custom Code > INSIDE <head> TAG
+     ================================================================== -->
+<style>
+/* Visual boxes: 4:5, soft grey, still image fills it until the live animation fades in */
+.how-visual { position: relative; aspect-ratio: 4 / 5; background: #FAFAFA; overflow: hidden; }
+.how-visual img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Hover: the other pillars' text dims, the hovered label square turns green (same as the design) */
+.how-content { transition: opacity .4s ease; }
+.how-section.is-hov .how-pillar:not(.is-on) .how-content { opacity: .38; }
+.how-label-sq { transition: background-color .3s ease; }
+.how-pillar.is-on .how-label-sq { background-color: #06B36C !important; }
+
+/* Bullets: green dot before each list item */
+.how-list { list-style: none; padding-left: 0; }
+.how-list li { display: flex; align-items: center; gap: 10px; }
+.how-list li::before {
+  content: "•"; flex: none; color: #06B36C;
+  font-family: "GT America", "Inter", Arial, sans-serif; font-size: 15px; line-height: 1; letter-spacing: 0;
+}
+
+/* The live animation frame (added by the code) */
+.how-pillars { position: relative; }
+.how-frame {
+  position: absolute; border: 0; display: block; z-index: 2;
+  background: #FAFAFA; opacity: 0; pointer-events: none;
+  transition: opacity .6s ease;
+}
+.how-frame.is-live { opacity: 1; pointer-events: auto; }
+@media (max-width: 991px) {
+  .how-frame { display: none !important; }
+  .how-visual { aspect-ratio: 1 / 1; }   /* square on phones, like the design */
+}
+</style>
+
+
+<!-- ==================================================================
+     PART 2 → Page settings > Custom Code > BEFORE </body> TAG
+     ================================================================== -->
+<script>
+(function init() {
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); return; }
+
+  // ---- Settings ----
+  var HOW_URL   = 'https://jimmyrivera08.github.io/wiliot-how-it-works/';  // ← your GitHub Pages address
+  var MIN_WIDTH = 992;    // live animations on desktop only; phones keep the still images
+
+  var section = document.querySelector('.how-section');
+  var row     = document.querySelector('.how-pillars');
+  var pillars = [].slice.call(document.querySelectorAll('.how-pillar'));
+  var visuals = pillars.map(function (p) { return p.querySelector('.how-visual'); });
+  if (!section || !row || pillars.length < 3) return;
+
+  var frame = null, live = false;
+  var textHover = -1, visHover = -1;   // which pillar is hovered via its text / via its visual
+
+  // ---- Hover classes on your Webflow pillars ----
+  function render() {
+    var i = textHover > -1 ? textHover : visHover;
+    section.classList.toggle('is-hov', i > -1);
+    pillars.forEach(function (p, n) { p.classList.toggle('is-on', n === i); });
+  }
+  function send(cmd, i) { if (frame && live) frame.contentWindow.postMessage({ wiliotHow: true, cmd: cmd, i: i }, '*'); }
+
+  pillars.forEach(function (p, i) {
+    p.addEventListener('mouseenter', function () { textHover = i; render(); send('hover', i); });
+    p.addEventListener('mouseleave', function (e) {
+      if (frame && e.relatedTarget === frame) return;          // moved up onto its own visual: keep it on
+      if (textHover === i) textHover = -1;
+      if (visHover !== i) send('leave', i);
+      render();
+    });
+  });
+
+  // ---- Live animations: one frame laid exactly over the 3 visual boxes ----
+  var desktop = window.matchMedia('(min-width:' + MIN_WIDTH + 'px) and (hover: hover)');
+  function place() {
+    if (!frame) return;
+    var rr = row.getBoundingClientRect(), a = visuals[0].getBoundingClientRect(), b = visuals[visuals.length - 1].getBoundingClientRect();
+    frame.style.left   = (a.left - rr.left) + 'px';
+    frame.style.top    = (a.top - rr.top) + 'px';
+    frame.style.width  = (b.right - a.left) + 'px';
+    frame.style.height = a.height + 'px';
+  }
+  function load() {
+    if (frame || !desktop.matches || HOW_URL.indexOf('YOUR-') > -1) return;
+    var c = navigator.connection; if (c && c.saveData) return;
+    frame = document.createElement('iframe');
+    frame.className = 'how-frame';
+    frame.title = 'How it works: Sense, Understand, Act animations';
+    frame.src = HOW_URL;
+    row.appendChild(frame);
+    place();
+    frame.addEventListener('mouseleave', function (e) {        // left the visuals
+      var into = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.how-pillar');
+      var j = into ? pillars.indexOf(into) : -1;
+      if (visHover > -1 && visHover !== j) send('leave', visHover);
+      visHover = -1; textHover = j; render();
+      if (j > -1) send('hover', j);
+    });
+  }
+
+  window.addEventListener('message', function (e) {
+    if (!frame || e.source !== frame.contentWindow) return;
+    var d = e.data; if (!d || !d.wiliotHow) return;
+    if (d.type === 'ready')  { live = true; place(); frame.classList.add('is-live'); }
+    if (d.type === 'hover')  { textHover = -1; visHover = d.i; render(); }        // the mouse is over the visuals now
+    if (d.type === 'leave')  { if (visHover === d.i) visHover = -1; render(); }     // text hover (if any) stays
+    if (d.type === 'wheel')  { window.scrollBy(d.dx || 0, d.dy || 0); }
+  });
+
+  if ('ResizeObserver' in window) new ResizeObserver(place).observe(row);
+  window.addEventListener('resize', place);
+  desktop.addEventListener('change', function () { if (desktop.matches) load(); });
+
+  // load the animations after the rest of the page (never while scrolling past)
+  if (document.readyState === 'complete') setTimeout(load, 300);
+  else window.addEventListener('load', function () { setTimeout(load, 300); });
+})();
+</script>
