@@ -5,7 +5,7 @@
      ================================================================== -->
 <style>
 /* Visual boxes: 4:5, soft grey, still image fills it until the live animation fades in */
-.how-visual { position: relative; aspect-ratio: 4 / 5; background: #FAFAFA; overflow: hidden; }
+.how-visual { position: relative; aspect-ratio: 4 / 5; background: #F5F5F5; overflow: hidden; }
 .how-visual img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* Hover: the other pillars' text dims, the hovered label square turns green (same as the design) */
@@ -26,7 +26,7 @@
 .how-pillars { position: relative; }
 .how-frame {
   position: absolute; border: 0; display: block; z-index: 2;
-  background: #FAFAFA; opacity: 0; pointer-events: none;
+  background: #F5F5F5; opacity: 0; pointer-events: none;
   transition: opacity .6s ease;
 }
 .how-frame.is-live { opacity: 1; pointer-events: auto; }
@@ -34,6 +34,9 @@
   .how-frame { display: none !important; }
   .how-visual { aspect-ratio: 1 / 1; }   /* square on phones, like the design */
 }
+
+/* Touch devices of any size (incl. large tablets): no live frame — swipes must scroll the page */
+@media (hover: none), (pointer: coarse) { .how-frame { display: none !important; } }
 </style>
 
 
@@ -76,7 +79,7 @@
   });
 
   // ---- Live animations: one frame laid exactly over the 3 visual boxes ----
-  var desktop = window.matchMedia('(min-width:' + MIN_WIDTH + 'px) and (hover: hover)');
+  var desktop = window.matchMedia('(min-width:' + MIN_WIDTH + 'px) and (hover: hover) and (pointer: fine)');
   function place() {
     if (!frame) return;
     var rr = row.getBoundingClientRect(), a = visuals[0].getBoundingClientRect(), b = visuals[visuals.length - 1].getBoundingClientRect();

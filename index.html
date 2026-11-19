@@ -7,7 +7,7 @@
   function boot() {
     if (document.getElementById('hw-boot') || !document.head) return;
     var s = document.createElement('style'); s.id = 'hw-boot';
-    s.textContent = 'html{background:#FAFAFA!important}body{visibility:hidden!important}';
+    s.textContent = 'html{background:#F5F5F5!important}body{visibility:hidden!important}';
     document.head.appendChild(s);
   }
   boot();
@@ -20,7 +20,7 @@
     if (!grid || cols.length < 3 || !how.querySelector('canvas[data-hiw]')) return false;
     var st = document.createElement('style');
     st.textContent =
-      'html,body{overflow:hidden!important;background:#FAFAFA!important;margin:0!important}' +
+      'html,body{overflow:hidden!important;background:#F5F5F5!important;margin:0!important}' +
       'body *{visibility:hidden!important}' +
       '#how .hiw-grid,#how .hiw-grid *{visibility:visible!important}' +
       '#how{position:fixed!important;top:0!important;left:0!important;right:0!important;height:100vh!important;padding:0!important;margin:0!important;z-index:9999!important}' +
@@ -310,7 +310,7 @@ a{color:inherit;text-decoration:none}
 #how .hiw-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:56px 10px 0;box-shadow:inset 0 1px 0 rgba(10,10,10,.12),inset 0 -1px 0 rgba(10,10,10,.12)}
 #how .hiw-col{position:relative;cursor:default}
 #how .hiw-col + .hiw-col{box-shadow:inset 1px 0 0 rgba(10,10,10,.08)}
-#how .hiw-vis{position:relative;aspect-ratio:4 / 5;background:#FAFAFA;overflow:hidden}
+#how .hiw-vis{position:relative;aspect-ratio:4 / 5;background:#F5F5F5;overflow:hidden}
 #how .hiw-vis canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #how .hiw-tx{padding:28px 28px 40px 16px;transition:opacity .4s ease}
 #how .hiw-col{display:flex;flex-direction:column}#how .hiw-tx{flex:1;display:flex;flex-direction:column;position:relative;padding-bottom:76px}#how .hiw-p{flex:1}#how .hiw-tx>.d-link{position:absolute;left:16px;bottom:32px;margin:0 !important}
@@ -1126,7 +1126,7 @@ window.__pxReveal = function (cv) {
     var T = ((now - T0) / 1000) % DUR, sp = ease(lin(T, 2.2, 3.8)) * (1 - ease(lin(T, 8.6, 10.2)));
     var th = -0.18 + Math.sin((now - T0) / 1000 * 0.32) * 0.32, narrow = W < 360;
     var k = Math.min(W * 0.78 / 2040, H * 0.4 / 1180), ox = W * (narrow ? 0.5 : 0.44), base = H * 0.6 + H * 0.1 * sp, gap = H * 0.15 * sp;
-    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.fillStyle = '#FAFAFA'; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.fillStyle = '#F5F5F5'; ctx.fillRect(0, 0, cv.width, cv.height);
     // heat field on the floor, breathing; brighter while the tag transmits
     var tx = lin(T, 10.4, 10.8) * (1 - lin(T, 11.6, 12)) + 0.35, mF = M(k, th, ox, base + H * 0.06, 0), pitch = 46;
     put(mF); for (var gx = -260; gx < 1150; gx += pitch) for (var gy = -260; gy < 2050; gy += pitch) {
@@ -2037,7 +2037,7 @@ window.WISO = WISO;
 // at rest each breathes slowly; on phones each plays while it is on screen.
 window.__hiw = function (root) {
   if (!root || root.__hiw) return; root.__hiw = 1;
-  var GREEN = '#06B36C', GMID = '#0BDB86', GLOW = '#39EFA3', INK = '#0F1D2A', SLATE = '#637587', LINE = '#ABBCCC', MAG = '#D327CF', MMID = '#EF46EF', BG = '#FAFAFA', MUTE = '#A3A3A3';
+  var GREEN = '#06B36C', GMID = '#0BDB86', GLOW = '#39EFA3', INK = '#0F1D2A', SLATE = '#637587', LINE = '#ABBCCC', MAG = '#D327CF', MMID = '#EF46EF', BG = '#F5F5F5', MUTE = '#A3A3A3';
   var MONO = '500 10px "GT Pressura", ui-monospace, monospace';
   var lin = function (t, a, b) { return Math.max(0, Math.min(1, (t - a) / (b - a))); };
   var ease = function (u) { return 1 - Math.pow(1 - u, 4); };  // ease-out quart: every move lands with the same confident settle
